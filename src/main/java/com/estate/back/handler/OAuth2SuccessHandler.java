@@ -1,5 +1,6 @@
 package com.estate.back.handler;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
+    @Value("${deploy.env}")
+    private String DEPLOY_ENV;
 
     @Override
     public void onAuthenticationSuccess(
@@ -31,7 +34,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtProvider.create(userId);
 
-        response.sendRedirect("http://localhost:3000/sns/" + token + "/36000");
+        if (DEPLOY_ENV.equals("production"))
+            response.sendRedirect("http://13.124.227.172:3000/sns/" + token + "/36000");
+        else
+            response.sendRedirect("http://localhost:3000/sns/" + token + "/36000");
 
     }
 
